@@ -93,7 +93,7 @@ const Home = ({ selectedCategory, searchQuery }) => {
 
         {filteredProducts.length === 0 && (
           <p style={{ textAlign: 'center', fontSize: '18px', marginTop: '50px', color: '#888' }}>
-            😔 Không tìm thấy sản phẩm nào!
+             Không tìm thấy sản phẩm nào!
           </p>
         )}
 

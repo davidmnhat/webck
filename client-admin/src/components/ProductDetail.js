@@ -571,6 +571,17 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="form-group">
+                  <label>Mô tả sản phẩm</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Nhập mô tả sản phẩm..."
+                    rows={4}
+                    style={{ resize: 'vertical', minHeight: '90px' }}
+                  />
+                </div>
+
+                <div className="form-group">
                   <label>Hình ảnh</label>
                   <div className="image-upload-area">
                     <input type="file" accept="image/*" onChange={previewImage} />

@@ -5,6 +5,7 @@ const OrderSchema = new Schema({
   cdate: { type: Number, default: Date.now },
   total: { type: Number, required: true },
   status: { type: String, default: 'PENDING' },
+  cancelReason: { type: String, default: '' },
   customer: { type: Schema.Types.ObjectId, ref: 'customer' },
   items: [{
     product: { type: Schema.Types.ObjectId, ref: 'product' },
