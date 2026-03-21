@@ -23,10 +23,9 @@ const Menu = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
+        
         .admin-navbar {
-          font-family: 'DM Sans', sans-serif;
+          font-family: Arial, Helvetica, sans-serif;
           background: #ff4d4f;
           border-bottom: 1px solid #222;
           padding: 0 32px;

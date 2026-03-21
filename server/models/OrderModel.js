@@ -11,12 +11,16 @@ const OrderSchema = new Schema({
     product: { type: Schema.Types.ObjectId, ref: 'product' },
     quantity: { type: Number }
   }],
-  
-  // --- THÊM 3 DÒNG NÀY ĐỂ LƯU THÔNG TIN SHIP HÀNG ---
+
+  // Thông tin ship hàng
   phone: { type: String },
   address: { type: String },
-  paymentMethod: { type: String, default: 'COD' } // Mặc định là thanh toán khi nhận hàng
-  // --------------------------------------------------
+  paymentMethod: { type: String, default: 'COD' },
+
+  // ✅ THÊM MỚI: hỗ trợ thanh toán chuyển khoản
+  code: { type: String },                              // Mã đơn hàng VD: DH1718234567890
+  paymentStatus: { type: String, default: 'PENDING' }, // PENDING | PAID
+  paidAt: { type: Date },                              // Thời điểm thanh toán thành công
 });
 
 const OrderModel = mongoose.model('order', OrderSchema);

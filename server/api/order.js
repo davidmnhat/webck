@@ -17,6 +17,9 @@ router.post('/checkout', JwtUtil.checkToken, async (req, res) => {
   const address = req.body.address;
   const paymentMethod = req.body.paymentMethod;
 
+  // ✅ Tạo mã đơn hàng duy nhất
+  const orderCode = 'DH' + now;
+
   const order = new OrderModel({
     cdate: now,
     total: total,
@@ -25,11 +28,13 @@ router.post('/checkout', JwtUtil.checkToken, async (req, res) => {
     items: items,
     phone: phone,
     address: address,
-    paymentMethod: paymentMethod
+    paymentMethod: paymentMethod,
+    code: orderCode,                                                    // ✅ THÊM
+    paymentStatus: paymentMethod === 'BANKING' ? 'PENDING' : 'PAID',   // ✅ THÊM
   });
-  
+
   await order.save();
-  res.json({ success: true, message: 'Đặt hàng thành công!' });
+  res.json({ success: true, message: 'Đặt hàng thành công!', orderCode: orderCode }); // ✅ trả orderCode về
 });
 
 // 2. XEM LỊCH SỬ ĐƠN HÀNG CỦA KHÁCH

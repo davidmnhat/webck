@@ -74,12 +74,12 @@ const ProductDetail = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+        
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .pd-root {
-          font-family: 'DM Sans', sans-serif;
+          font-family: Arial, Helvetica, sans-serif;
           background: #f5f4f0;
           min-height: 100vh;
           padding: 32px;

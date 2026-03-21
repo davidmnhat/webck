@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import MyContext from '../contexts/MyContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import BankingModal from './BankingModal';
 
 const Cart = () => {
   const { mycart, removeFromCart, updateCart, customer, clearCart } = useContext(MyContext);
@@ -14,6 +15,11 @@ const Cart = () => {
 
   // State lưu danh sách index các sản phẩm được tick — mặc định tick hết
   const [selectedItems, setSelectedItems] = useState([]);
+
+  // ✅ THÊM MỚI: state cho banking modal
+  const [showBankingModal, setShowBankingModal] = useState(false);
+  const [pendingOrderCode, setPendingOrderCode] = useState('');
+  const [pendingSelectedCart, setPendingSelectedCart] = useState([]);
 
   // Khi giỏ hàng thay đổi, tick hết các item mới
   useEffect(() => {
@@ -54,6 +60,7 @@ const Cart = () => {
     setIsCheckout(true);
   };
 
+  // ✅ THAY ĐỔI: submitOrder xử lý cả COD và BANKING
   const submitOrder = async (e) => {
     e.preventDefault();
     if (window.confirm('Bạn có chắc chắn muốn đặt hàng không?')) {
@@ -65,10 +72,18 @@ const Cart = () => {
       try {
         const res = await api.post('/order/checkout', body);
         if (res.data.success) {
-          alert('🎉 Đặt hàng thành công!');
-          // Chỉ xóa các sản phẩm đã được tick, giữ lại sản phẩm chưa chọn
-          selectedCart.forEach(item => removeFromCart(item));
-          navigate('/');
+          if (paymentMethod === 'BANKING') {
+            // Lưu lại selectedCart trước khi mở modal (vì state có thể thay đổi)
+            setPendingSelectedCart([...selectedCart]);
+            setPendingOrderCode(res.data.orderCode);
+            setIsCheckout(false);
+            setShowBankingModal(true);
+          } else {
+            // COD → xử lý bình thường
+            alert('🎉 Đặt hàng thành công!');
+            selectedCart.forEach(item => removeFromCart(item));
+            navigate('/');
+          }
         } else {
           alert(res.data.message);
         }
@@ -93,10 +108,8 @@ const Cart = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
         .cart-root {
-          font-family: 'DM Sans', sans-serif;
+          font-family: Arial, Helvetica, sans-serif;
           background: #f5f4f0;
           min-height: 100vh;
           padding: 32px;
@@ -609,6 +622,21 @@ const Cart = () => {
           )}
         </div>
       </div>
+
+      {/* ✅ BANKING MODAL */}
+      {showBankingModal && (
+        <BankingModal
+          total={total}
+          orderCode={pendingOrderCode}
+          onSuccess={() => {
+            setShowBankingModal(false);
+            pendingSelectedCart.forEach(item => removeFromCart(item));
+            alert('🎉 Thanh toán thành công! Đơn hàng đang được xử lý.');
+            navigate('/');
+          }}
+          onClose={() => setShowBankingModal(false)}
+        />
+      )}
     </>
   );
 };

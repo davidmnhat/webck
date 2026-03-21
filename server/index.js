@@ -22,6 +22,7 @@ app.use('/api/categories', require('./api/category'));
 app.use('/api/products', require('./api/product'));
 app.use('/api/customer', require('./api/customer'));
 app.use('/api/order', require('./api/order'));
+app.use('/api/payment', require('./api/payment'));
 
 // My Utilities
 const db = require('./utils/MongooseUtil');
