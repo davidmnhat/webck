@@ -44,7 +44,7 @@ router.get('/customer', JwtUtil.checkToken, async (req, res) => {
   const orders = await OrderModel.find({ customer: customerId })
     .sort({ cdate: -1 })
     .populate('items.product', 'name image price');
-  res.json(orders);
+  res.json({ success: true, orders });
 });
 
 // 3. HỦY ĐƠN HÀNG

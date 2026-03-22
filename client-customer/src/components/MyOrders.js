@@ -26,7 +26,8 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       const res = await api.get('/order/customer');
-      setOrders(res.data.orders || res.data.data || res.data || []);
+      const raw = res.data.orders ?? res.data;
+setOrders(Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.error('Lỗi lấy đơn hàng', err);
     }
