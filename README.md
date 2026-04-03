@@ -1,4 +1,4 @@
 Contributors
-- Vo Minh Nhat
-- Pham Le Gia Bao
-- Truong Thanh Quy
+- Vo Minh Nhat (full stack)
+- Pham Le Gia Bao (Back-end and Database)
+- Truong Thanh Quy (front-end)
