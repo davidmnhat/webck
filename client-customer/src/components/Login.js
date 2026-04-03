@@ -7,10 +7,11 @@ const Login = () => {
   const { setToken, setCustomer } = useContext(MyContext);
   const navigate = useNavigate();
 
-  // 1. TẠO STATE ĐỂ LƯU DỮ LIỆU NGƯỜI DÙNG NHẬP
+  // STATE
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  // XỬ LÝ ĐĂNG NHẬP
   const btnLoginClick = (e) => {
     e.preventDefault();
 
@@ -26,12 +27,12 @@ const Login = () => {
           setToken(token);
           setCustomer(customer);
           
-          // Lưu vào LocalStorage (Để F5 không mất)
+          // Lưu vào LocalStorage
           localStorage.setItem('customer_token', token);
           localStorage.setItem('customer', JSON.stringify(customer));
 
           alert('Đăng nhập thành công!');
-          navigate('/home');
+          navigate('/');
         } else {
           alert(res.data.message);
         }
@@ -42,42 +43,147 @@ const Login = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.1)', borderRadius: '8px' }}>
-      <h2 style={{ textAlign: 'center', color: '#007bff' }}>ĐĂNG NHẬP</h2>
-      <form>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Tên đăng nhập:</label>
-          <input 
-            type="text" 
-            value={username} // Gắn vào state
-            onChange={(e) => setUsername(e.target.value)} // Gõ tới đâu lưu state tới đó
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }} 
-            placeholder="Nhập username..."
-          />
-        </div>
+    // Wrapper bọc ngoài để căn giữa toàn bộ trang
+    <div style={{
+      minHeight: '80vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f5f7fa', // Màu nền xám nhạt cho cả trang
+      padding: '20px'
+    }}>
+      
+      {/* Box Form Đăng Nhập */}
+      <div style={{
+        width: '100%',
+        maxWidth: '420px',
+        backgroundColor: '#ffffff',
+        padding: '40px 30px',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        borderRadius: '16px',
+        boxSizing: 'border-box'
+      }}>
         
-        <div style={{ marginBottom: '15px' }}>
-          <label>Mật khẩu:</label>
-          <input 
-            type="password" 
-            value={password} // Gắn vào state
-            onChange={(e) => setPassword(e.target.value)} // Gõ tới đâu lưu state tới đó
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }} 
-            placeholder="Nhập password..."
-          />
+        <h2 style={{ 
+          textAlign: 'center', 
+          color: '#1d1d1f', 
+          fontSize: '28px', 
+          fontWeight: '700', 
+          marginBottom: '30px',
+          letterSpacing: '-0.5px'
+        }}>
+          Đăng nhập
+        </h2>
+
+        <form>
+          {/* USERNAME */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '8px', 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              color: '#4a4a4a' 
+            }}>
+              Tên đăng nhập
+            </label>
+            <input 
+              type="text" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              style={{ 
+                width: '100%', 
+                padding: '14px 16px', 
+                border: '1px solid #e1e5eb', 
+                borderRadius: '8px', 
+                fontSize: '15px',
+                boxSizing: 'border-box',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }} 
+              placeholder="Nhập tên đăng nhập của bạn..."
+              onFocus={(e) => e.target.style.border = '1px solid #007bff'}
+              onBlur={(e) => e.target.style.border = '1px solid #e1e5eb'}
+            />
+          </div>
+          
+          {/* PASSWORD */}
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '8px', 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              color: '#4a4a4a' 
+            }}>
+              Mật khẩu
+            </label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              style={{ 
+                width: '100%', 
+                padding: '14px 16px', 
+                border: '1px solid #e1e5eb', 
+                borderRadius: '8px', 
+                fontSize: '15px',
+                boxSizing: 'border-box',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }} 
+              placeholder="Nhập mật khẩu..."
+              onFocus={(e) => e.target.style.border = '1px solid #007bff'}
+              onBlur={(e) => e.target.style.border = '1px solid #e1e5eb'}
+            />
+          </div>
+
+          {/* BUTTON */}
+          <button 
+            type="submit" 
+            onClick={btnLoginClick} 
+            style={{ 
+              width: '100%', 
+              padding: '14px', 
+              backgroundColor: '#007bff', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '16px', 
+              fontWeight: 'bold', 
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 12px rgba(0, 123, 255, 0.2)'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
+          >
+            ĐĂNG NHẬP
+          </button>
+        </form>
+        
+        {/* FOOTER LINK */}
+        <div style={{ 
+          marginTop: '25px', 
+          textAlign: 'center', 
+          fontSize: '14px', 
+          color: '#666' 
+        }}>
+          <span>Bạn chưa có tài khoản? </span>
+          <Link 
+            to="/signup" 
+            style={{ 
+              color: '#007bff', 
+              textDecoration: 'none', 
+              fontWeight: '600' 
+            }}
+            onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+            onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+          >
+            Đăng ký ngay
+          </Link>
         </div>
 
-        <button 
-          type="submit" 
-          onClick={btnLoginClick} // Bấm nút thì gọi hàm xử lý
-          style={{ width: '100%', padding: '10px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-          ĐĂNG NHẬP
-        </button>
-      </form>
-      
-      <div style={{ marginTop: '15px', textAlign: 'center' }}>
-        <span>Chưa có tài khoản? </span>
-        <Link to="/signup" style={{ color: '#dc3545', textDecoration: 'none' }}>Đăng ký ngay</Link>
       </div>
     </div>
   );

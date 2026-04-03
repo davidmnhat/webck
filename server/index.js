@@ -23,10 +23,11 @@ app.use('/api/products', require('./api/product'));
 app.use('/api/customer', require('./api/customer'));
 app.use('/api/order', require('./api/order'));
 app.use('/api/payment', require('./api/payment'));
-
+app.use('/api/chat', require('./api/chat'));
 // My Utilities
 const db = require('./utils/MongooseUtil');
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+

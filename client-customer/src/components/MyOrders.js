@@ -15,7 +15,7 @@ const MyOrders = () => {
   const { customer } = useContext(MyContext);
 
   // Modal state
-  const [modalOrder, setModalOrder] = useState(null); // đơn đang muốn hủy
+  const [modalOrder, setModalOrder] = useState(null);
   const [selectedReason, setSelectedReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
@@ -27,7 +27,7 @@ const MyOrders = () => {
     try {
       const res = await api.get('/order/customer');
       const raw = res.data.orders ?? res.data;
-setOrders(Array.isArray(raw) ? raw : []);
+      setOrders(Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.error('Lỗi lấy đơn hàng', err);
     }
@@ -60,443 +60,476 @@ setOrders(Array.isArray(raw) ? raw : []);
     setCancelling(false);
   };
 
+  // Làm cho cái Badge nhìn giống xài thư viện Ant Design / Bootstrap
   const getStatusBadge = (status) => {
     const map = {
-      PENDING:   { bg: '#fef9c3', color: '#92400e', border: '#fde68a', label: 'Chờ xác nhận', dot: '#f59e0b' },
-      APPROVED:  { bg: '#dbeafe', color: '#1e40af', border: '#bfdbfe', label: 'Đang chuẩn bị', dot: '#3b82f6' },
-      SHIPPING:  { bg: '#ffedd5', color: '#9a3412', border: '#fed7aa', label: 'Đang giao hàng', dot: '#f97316' },
-      COMPLETED: { bg: '#dcfce7', color: '#166534', border: '#bbf7d0', label: 'Giao thành công', dot: '#22c55e' },
-      CANCELED:  { bg: '#fee2e2', color: '#991b1b', border: '#fecaca', label: 'Đã hủy', dot: '#ef4444' },
+      PENDING:   { bg: '#fffbe6', color: '#d48806', border: '#ffe58f', label: 'Chờ xác nhận', dot: '#faad14' },
+      APPROVED:  { bg: '#e6f7ff', color: '#0958d9', border: '#91caff', label: 'Đang chuẩn bị', dot: '#1677ff' },
+      SHIPPING:  { bg: '#fff2e8', color: '#d4380d', border: '#ffbb96', label: 'Đang giao hàng', dot: '#fa541c' },
+      COMPLETED: { bg: '#f6ffed', color: '#389e0d', border: '#b7eb8f', label: 'Giao thành công', dot: '#52c41a' },
+      CANCELED:  { bg: '#fff1f0', color: '#cf1322', border: '#ffa39e', label: 'Đã hủy', dot: '#f5222d' },
     };
-    const s = map[status] || { bg: '#f3f4f6', color: '#555', border: '#e5e7eb', label: status, dot: '#aaa' };
+    const s = map[status] || { bg: '#f5f5f5', color: '#595959', border: '#d9d9d9', label: status, dot: '#bfbfbf' };
     return (
       <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        background: s.bg, color: s.color,
-        border: `1px solid ${s.border}`,
-        padding: '4px 12px', borderRadius: 20,
-        fontSize: 12, fontWeight: 600,
+        display: 'inline-flex', alignItems: 'center', gap: '6px',
+        background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+        padding: '6px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600',
       }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, display: 'inline-block' }} />
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.dot, display: 'inline-block' }} />
         {s.label}
       </span>
     );
   };
 
   if (!customer) return (
-    <div style={{ textAlign: 'center', marginTop: 80, fontFamily: 'sans-serif', color: '#555' }}>
-      <div style={{ fontSize: 48 }}>🔒</div>
-      <h2 style={{ marginTop: 16 }}>Vui lòng đăng nhập để xem đơn hàng</h2>
+    <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'sans-serif', color: '#8c8c8c' }}>
+      <div style={{ fontSize: '64px', marginBottom: '20px' }}>🔒</div>
+      <h2>Vui lòng đăng nhập để xem đơn hàng</h2>
     </div>
   );
 
   return (
     <>
       <style>{`
-        
-
-        .mo-root {
-          font-family: Arial, Helvetica, sans-serif;
-          background: #f5f4f0;
+        .mo-wrapper {
+          background-color: #f0f2f5;
           min-height: 100vh;
-          padding: 32px;
-          color: #1a1a1a;
+          padding: 40px 20px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .mo-title {
-          font-size: 22px;
-          font-weight: 600;
-          letter-spacing: -0.3px;
+        .mo-container {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        .mo-page-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1f1f1f;
           margin-bottom: 24px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .mo-title .badge {
-          background: #111;
-          color: #f5f4f0;
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          padding: 3px 10px;
-          border-radius: 20px;
-        }
-
-        .order-card {
-          background: #fff;
-          border-radius: 14px;
-          border: 1px solid #e8e6e1;
-          overflow: hidden;
-          margin-bottom: 16px;
-        }
-
-        .order-card-header {
-          padding: 16px 24px;
-          border-bottom: 1px solid #f0eeea;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: #faf9f7;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-
-        .order-id {
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          font-weight: 500;
-          color: #555;
-        }
-
-        .order-id strong {
-          color: #111;
-          font-size: 14px;
-        }
-
-        .order-header-right {
           display: flex;
           align-items: center;
           gap: 12px;
         }
 
-        .btn-cancel-order {
-          padding: 6px 16px;
-          border-radius: 8px;
-          font-size: 12.5px;
-          font-family: 'DM Sans', sans-serif;
+        .mo-count-badge {
+          background: #1890ff;
+          color: #fff;
+          font-size: 14px;
           font-weight: 600;
-          cursor: pointer;
-          border: 1.5px solid #ef4444;
-          background: none;
-          color: #ef4444;
-          transition: all 0.15s;
+          padding: 2px 12px;
+          border-radius: 20px;
         }
 
-        .btn-cancel-order:hover:not(:disabled) {
-          background: #fef2f2;
+        /* CARD ĐƠN HÀNG STYLE SINH VIÊN NĂM CUỐI */
+        .order-card {
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          margin-bottom: 24px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          overflow: hidden;
+        }
+        
+        .order-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
 
-        .btn-cancel-order:disabled {
-          border-color: #d1d5db;
-          color: #9ca3af;
-          cursor: not-allowed;
-          background: none;
-        }
-
-        .order-meta {
+        .order-header {
           padding: 16px 24px;
+          border-bottom: 1px solid #f0f0f0;
           display: flex;
-          gap: 24px;
-          flex-wrap: wrap;
-          font-size: 13.5px;
-          color: #666;
-          border-bottom: 1px solid #f0eeea;
-        }
-
-        .order-meta span { display: flex; align-items: center; gap: 6px; }
-
-        .order-items { padding: 0 24px; }
-
-        .order-item-row {
-          display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 14px;
-          padding: 14px 0;
-          border-bottom: 1px dashed #f0eeea;
+          background-color: #fafafa;
         }
 
-        .order-item-row:last-child { border-bottom: none; }
-
-        .order-item-row img {
-          width: 56px;
-          height: 56px;
-          object-fit: cover;
-          border-radius: 8px;
-          border: 1px solid #e8e6e1;
-          flex-shrink: 0;
+        .order-id-text {
+          font-size: 15px;
+          color: #595959;
         }
 
-        .order-item-name {
-          flex: 1;
-          font-weight: 500;
-          font-size: 13.5px;
-        }
-
-        .order-item-qty {
-          font-family: 'DM Mono', monospace;
-          font-size: 12px;
-          color: #888;
-          white-space: nowrap;
-        }
-
-        .order-item-price {
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          color: #e53935;
-          font-weight: 500;
-          white-space: nowrap;
-        }
-
-        .order-footer {
-          padding: 14px 24px;
-          border-top: 1px solid #f0eeea;
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 8px;
-          background: #faf9f7;
-        }
-
-        .order-total-label { font-size: 13px; color: #888; }
-
-        .order-total-amount {
-          font-family: 'DM Mono', monospace;
+        .order-id-text strong {
+          color: #262626;
           font-size: 16px;
-          font-weight: 700;
-          color: #e53935;
+          letter-spacing: 0.5px;
         }
 
-        /* MODAL */
-        .modal-backdrop {
+        .order-body {
+          padding: 24px;
+        }
+
+        /* KHUNG THÔNG TIN GIAO HÀNG */
+        .order-info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          background: #f8f9fa;
+          padding: 16px 20px;
+          border-radius: 8px;
+          margin-bottom: 24px;
+          border: 1px solid #f0f0f0;
+        }
+
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 14px;
+          color: #434343;
+        }
+
+        .info-item i {
+          font-size: 16px;
+        }
+
+        /* DANH SÁCH SẢN PHẨM */
+        .product-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .product-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding-bottom: 16px;
+          border-bottom: 1px dashed #e8e8e8;
+        }
+
+        .product-item:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+
+        .product-img {
+          width: 80px;
+          height: 80px;
+          object-fit: contain;
+          border-radius: 8px;
+          border: 1px solid #f0f0f0;
+          padding: 4px;
+          background: #fff;
+        }
+
+        .product-details {
+          flex: 1;
+        }
+
+        .product-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: #262626;
+          margin-bottom: 4px;
+        }
+
+        .product-qty {
+          font-size: 13px;
+          color: #8c8c8c;
+        }
+
+        .product-price {
+          font-size: 15px;
+          font-weight: 600;
+          color: #f5222d;
+        }
+
+        /* FOOTER ĐƠN HÀNG */
+        .order-footer {
+          padding-top: 20px;
+          margin-top: 20px;
+          border-top: 1px solid #f0f0f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .total-section {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .total-label {
+          font-size: 14px;
+          color: #595959;
+        }
+
+        .total-amount {
+          font-size: 20px;
+          font-weight: 700;
+          color: #f5222d;
+        }
+
+        .btn-cancel {
+          padding: 8px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          border: 1px solid #ffa39e;
+          background: #fff1f0;
+          color: #cf1322;
+          transition: all 0.3s;
+        }
+
+        .btn-cancel:hover:not(:disabled) {
+          background: #ffccc7;
+          border-color: #ff7875;
+        }
+
+        .btn-cancel:disabled {
+          background: #f5f5f5;
+          border-color: #d9d9d9;
+          color: #bfbfbf;
+          cursor: not-allowed;
+        }
+
+        /* MODAL HỦY ĐƠN */
+        .modal-overlay {
           position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.35);
-          z-index: 1000;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0, 0, 0, 0.45);
+          backdrop-filter: blur(2px);
+          z-index: 9999;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 16px;
+          animation: fadeIn 0.2s ease-out;
         }
 
-        .modal-box {
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .modal-content {
           background: #fff;
-          border-radius: 16px;
-          width: 100%;
-          max-width: 440px;
+          width: 90%;
+          max-width: 480px;
+          border-radius: 12px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2);
           overflow: hidden;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
 
         .modal-header {
           padding: 20px 24px;
-          border-bottom: 1px solid #e8e6e1;
+          border-bottom: 1px solid #f0f0f0;
           display: flex;
-          align-items: center;
           justify-content: space-between;
+          align-items: center;
         }
 
         .modal-header h3 {
-          font-size: 15px;
-          font-weight: 600;
-          color: #111;
-        }
-
-        .modal-close {
-          background: none;
-          border: none;
+          margin: 0;
           font-size: 18px;
+          color: #262626;
+        }
+
+        .modal-close-btn {
+          background: transparent;
+          border: none;
+          font-size: 20px;
+          color: #8c8c8c;
           cursor: pointer;
-          color: #aaa;
-          line-height: 1;
-          padding: 2px 6px;
-          border-radius: 6px;
-          transition: all 0.15s;
+          transition: color 0.2s;
         }
 
-        .modal-close:hover { background: #f5f4f0; color: #555; }
+        .modal-close-btn:hover { color: #f5222d; }
 
-        .modal-order-ref {
-          padding: 12px 24px;
-          background: #faf9f7;
-          border-bottom: 1px solid #e8e6e1;
-          font-size: 12px;
-          color: #888;
+        .modal-body {
+          padding: 24px;
         }
 
-        .modal-order-ref strong {
-          font-family: 'DM Mono', monospace;
-          color: #555;
-        }
-
-        .modal-body { padding: 20px 24px; }
-
-        .modal-body p {
-          font-size: 13.5px;
-          color: #555;
-          margin-bottom: 14px;
-        }
-
-        .reason-option {
+        .reason-box {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 11px 14px;
-          border: 1.5px solid #e0ddd8;
-          border-radius: 9px;
-          margin-bottom: 8px;
+          gap: 12px;
+          padding: 12px 16px;
+          border: 1px solid #d9d9d9;
+          border-radius: 8px;
+          margin-bottom: 12px;
           cursor: pointer;
-          font-size: 13.5px;
-          color: #444;
-          transition: all 0.15s;
-          background: #faf9f7;
+          transition: all 0.2s;
+          color: #434343;
         }
 
-        .reason-option:hover { border-color: #2563eb; background: #f0f7ff; }
+        .reason-box:hover {
+          border-color: #1890ff;
+        }
 
-        .reason-option.selected {
-          border-color: #2563eb;
-          background: #f0f7ff;
-          color: #1d4ed8;
+        .reason-box.active {
+          border-color: #1890ff;
+          background: #e6f7ff;
+          color: #0958d9;
           font-weight: 500;
         }
-
-        .reason-option input { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; }
 
         .modal-footer {
           padding: 16px 24px;
-          border-top: 1px solid #e8e6e1;
+          border-top: 1px solid #f0f0f0;
           display: flex;
-          gap: 10px;
+          justify-content: flex-end;
+          gap: 12px;
+          background: #fafafa;
         }
 
-        .btn-modal-cancel {
-          flex: 1;
-          padding: 10px;
-          border-radius: 9px;
-          font-size: 13.5px;
-          font-family: 'DM Sans', sans-serif;
+        .btn-modal-close {
+          padding: 8px 20px;
+          border-radius: 6px;
+          border: 1px solid #d9d9d9;
+          background: #fff;
+          cursor: pointer;
+          font-weight: 500;
+        }
+
+        .btn-modal-close:hover {
+          color: #1890ff;
+          border-color: #1890ff;
+        }
+
+        .btn-modal-submit {
+          padding: 8px 24px;
+          border-radius: 6px;
+          border: none;
+          background: #f5222d;
+          color: #fff;
           font-weight: 500;
           cursor: pointer;
-          background: none;
-          border: 1px solid #e0ddd8;
-          color: #666;
-          transition: all 0.15s;
         }
 
-        .btn-modal-cancel:hover { background: #f5f4f0; }
-
-        .btn-modal-confirm {
-          flex: 1;
-          padding: 10px;
-          border-radius: 9px;
-          font-size: 13.5px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 600;
-          cursor: pointer;
-          background: #ef4444;
-          color: #fff;
-          border: none;
-          transition: all 0.15s;
+        .btn-modal-submit:hover:not(:disabled) {
+          background: #cf1322;
         }
 
-        .btn-modal-confirm:hover:not(:disabled) { background: #dc2626; }
-
-        .btn-modal-confirm:disabled {
-          background: #e0ddd8;
-          color: #aaa;
+        .btn-modal-submit:disabled {
+          background: #ffccc7;
           cursor: not-allowed;
         }
 
-        .empty-state {
+        /* EMPTY STATE */
+        .empty-container {
           text-align: center;
-          padding: 64px 24px;
-          color: #aaa;
-          font-size: 15px;
+          padding: 80px 20px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
-
-        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
       `}</style>
 
-      <div className="mo-root">
-        <div className="mo-title">
-          📦 Đơn hàng của tôi
-          <span className="badge">{orders.length} đơn</span>
-        </div>
-
-        {orders.length === 0 ? (
-          <div className="empty-state">
-            <div className="icon">🛍️</div>
-            Bạn chưa có đơn hàng nào.
+      <div className="mo-wrapper">
+        <div className="mo-container">
+          <div className="mo-page-title">
+            📦 Quản lý đơn hàng
+            <span className="mo-count-badge">{orders.length}</span>
           </div>
-        ) : (
-          orders.map((order) => (
-            <div key={order._id} className="order-card">
-              {/* Header */}
-              <div className="order-card-header">
-                <div className="order-id">
-                  Đơn hàng <strong>#{order._id.slice(-6).toUpperCase()}</strong>
-                </div>
-                <div className="order-header-right">
-                  {getStatusBadge(order.status)}
-                  <button
-                    className="btn-cancel-order"
-                    disabled={order.status !== 'PENDING'}
-                    onClick={() => openCancelModal(order)}
-                    title={order.status !== 'PENDING' ? 'Chỉ có thể hủy đơn đang chờ xác nhận' : 'Hủy đơn hàng'}
-                  >
-                    Hủy đơn
-                  </button>
-                </div>
-              </div>
 
-              {/* Meta */}
-              <div className="order-meta">
-                <span>🕒 {new Date(order.cdate).toLocaleString('vi-VN')}</span>
-                <span>📍 {order.address}</span>
-                <span>📞 {order.phone}</span>
-                <span>💳 {order.paymentMethod === 'COD' ? 'COD' : 'Chuyển khoản'}</span>
-              </div>
+          {orders.length === 0 ? (
+            <div className="empty-container">
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🛒</div>
+              <h3 style={{ color: '#595959' }}>Bạn chưa có đơn hàng nào</h3>
+              <p style={{ color: '#8c8c8c' }}>Hãy khám phá các sản phẩm và đặt hàng ngay nhé!</p>
+            </div>
+          ) : (
+            orders.map((order) => (
+              <div key={order._id} className="order-card">
+                
+                {/* HEADER */}
+                <div className="order-header">
+                  <div className="order-id-text">
+                    Mã đơn: <strong>#{order._id.slice(-8).toUpperCase()}</strong>
+                  </div>
+                  <div>
+                    {getStatusBadge(order.status)}
+                  </div>
+                </div>
 
-              {/* Items */}
-              <div className="order-items">
-                {order.items.map((item, idx) => (
-                  <div key={idx} className="order-item-row">
-                    <img src={item.product?.image} alt={item.product?.name} />
-                    <div className="order-item-name">{item.product?.name}</div>
-                    <div className="order-item-qty">x{item.quantity}</div>
-                    <div className="order-item-price">
-                      {(item.product?.price * item.quantity).toLocaleString('vi-VN')}₫
+                <div className="order-body">
+                  {/* META INFO GRID */}
+                  <div className="order-info-grid">
+                    <div className="info-item">
+                      <span>🕒 <strong>Ngày đặt:</strong> {new Date(order.cdate).toLocaleString('vi-VN')}</span>
+                    </div>
+                    <div className="info-item">
+                      <span>💳 <strong>Thanh toán:</strong> {order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : 'Chuyển khoản / Quẹt thẻ'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span>📞 <strong>SĐT:</strong> {order.phone}</span>
+                    </div>
+                    <div className="info-item">
+                      <span>📍 <strong>Giao đến:</strong> {order.address}</span>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Footer */}
-              <div className="order-footer">
-                <span className="order-total-label">Tổng thanh toán</span>
-                <span className="order-total-amount">{order.total.toLocaleString('vi-VN')}₫</span>
+                  {/* PRODUCT LIST */}
+                  <div className="product-list">
+                    {order.items.map((item, idx) => (
+                      <div key={idx} className="product-item">
+                        <img src={item.product?.image} alt={item.product?.name} className="product-img" />
+                        <div className="product-details">
+                          <div className="product-name">{item.product?.name}</div>
+                          <div className="product-qty">Số lượng: x{item.quantity}</div>
+                        </div>
+                        <div className="product-price">
+                          {(item.product?.price * item.quantity).toLocaleString('vi-VN')} đ
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* FOOTER */}
+                  <div className="order-footer">
+                    <button
+                      className="btn-cancel"
+                      disabled={order.status !== 'PENDING'}
+                      onClick={() => openCancelModal(order)}
+                      title={order.status !== 'PENDING' ? 'Chỉ có thể hủy khi đơn đang chờ xác nhận' : 'Hủy đơn này'}
+                    >
+                      {order.status !== 'PENDING' ? 'Không thể hủy' : 'Yêu cầu hủy đơn'}
+                    </button>
+                    
+                    <div className="total-section">
+                      <span className="total-label">Tổng tiền:</span>
+                      <span className="total-amount">{order.total.toLocaleString('vi-VN')} đ</span>
+                    </div>
+                  </div>
+
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      {/* CANCEL MODAL */}
+      {/* MODAL HỦY ĐƠN HÀNG */}
       {modalOrder && (
-        <div className="modal-backdrop" onClick={closeCancelModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={closeCancelModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Lý do hủy đơn hàng</h3>
-              <button className="modal-close" onClick={closeCancelModal}>✕</button>
-            </div>
-
-            <div className="modal-order-ref">
-              Đơn hàng <strong>#{modalOrder._id.slice(-6).toUpperCase()}</strong>
+              <h3>Hủy đơn hàng #{modalOrder._id.slice(-8).toUpperCase()}</h3>
+              <button className="modal-close-btn" onClick={closeCancelModal}>✕</button>
             </div>
 
             <div className="modal-body">
-              <p>Vui lòng cho chúng tôi biết lý do bạn muốn hủy:</p>
+              <p style={{ color: '#595959', marginBottom: '16px' }}>
+                Vui lòng chọn lý do bạn muốn hủy đơn hàng này:
+              </p>
               {CANCEL_REASONS.map((reason) => (
                 <label
                   key={reason}
-                  className={`reason-option ${selectedReason === reason ? 'selected' : ''}`}
+                  className={`reason-box ${selectedReason === reason ? 'active' : ''}`}
                 >
                   <input
                     type="radio"
-                    name="cancel-reason"
+                    name="cancelReason"
                     value={reason}
                     checked={selectedReason === reason}
                     onChange={() => setSelectedReason(reason)}
+                    style={{ cursor: 'pointer', accentColor: '#1890ff' }}
                   />
                   {reason}
                 </label>
@@ -504,13 +537,13 @@ setOrders(Array.isArray(raw) ? raw : []);
             </div>
 
             <div className="modal-footer">
-              <button className="btn-modal-cancel" onClick={closeCancelModal}>Giữ đơn hàng</button>
+              <button className="btn-modal-close" onClick={closeCancelModal}>Quay lại</button>
               <button
-                className="btn-modal-confirm"
+                className="btn-modal-submit"
                 disabled={!selectedReason || cancelling}
                 onClick={submitCancel}
               >
-                {cancelling ? 'Đang hủy...' : 'Xác nhận hủy'}
+                {cancelling ? 'Đang xử lý...' : 'Xác nhận hủy'}
               </button>
             </div>
           </div>

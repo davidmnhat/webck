@@ -11,7 +11,7 @@ import Signup from './components/Signup';
 import MyProfile from './components/MyProfile';
 import Footer from './components/Footer';
 
-const CATEGORIES = ['Laptop', 'Điện thoại', 'Máy tính bảng', 'Phụ kiện'];
+const CATEGORIES = ['Macbook', 'Điện thoại', 'Máy tính bảng', 'Phụ kiện'];
 
 const PROVINCES = ['Hà Nội', 'Hồ Chí Minh', 'Hải Phòng', 'Đà Nẵng', 'Cần Thơ', 'Huế',
                   'Tuyên Quang', 'Cao Bằng', 'Lai Châu', 'Lào Cai', 'Thái Nguyên', 'Điện Biên', 'Sơn La',
@@ -114,7 +114,15 @@ const Header = ({ selectedCategory, setSelectedCategory, searchQuery, setSearchQ
     setSelectedCategory(cat);
     setSearchQuery('');
     setShowDropdown(false);
-    navigate('/');
+    
+    // NẾU LÀ "Tất cả sản phẩm" (cat = null) -> Về trang chủ gốc
+    if (!cat) {
+      navigate('/');
+    } 
+    // NẾU CÓ CHỌN DANH MỤC -> Gắn thêm đuôi category vào URL để Home.js hiểu
+    else {
+      navigate(`/?category=${encodeURIComponent(cat)}`);
+    }
   };
 
   const handleSearch = (e) => {
