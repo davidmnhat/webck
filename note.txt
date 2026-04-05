@@ -1,3 +1,4 @@
 api ck: AK_CS.c130e6f024c911f1a3ca79c2f1d864cb.NSbQM6aAB4rocLztiPnq2q8smKf2LMI9AeDOC1rjaupKe0OIO2CGxTqAHwXxZsnKBXev6Lzq
-chạy ngrok http 3000
-copy bỏ qua casso -> flow
+chạy ngrok http --url=postdetermined-parachronistic-donya.ngrok-free.dev 3000
+
+lt --port 3001

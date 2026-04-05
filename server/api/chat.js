@@ -3,8 +3,11 @@ const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Product = require('../models/ProductModel');
 
-// Thay bằng API Key thật lấy từ Google AI Studio
-const genAI = new GoogleGenerativeAI('AIzaSyCeYEwYupUaQduBxuokbGPL_8B-zSEly6I');
+require('dotenv').config();
+
+
+// Gọi key một cách an toàn
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 router.post('/', async (req, res) => {
   try {
