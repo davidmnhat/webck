@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api', // Đổi port nếu server m chạy khác
+  baseURL: process.env.REACT_APP_API_URL // Dòng này là quan trọng nhất!
 });
 
 // Tự động thêm Token vào mỗi request
