@@ -1,11 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Nếu đang chạy ở máy mình (localhost) thì gọi thẳng port 3000
-  // Nếu không phải localhost thì mới dùng link ngrok
-  baseURL: window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api' 
-    : 'https://postdetermined-parachronistic-donya.ngrok-free.dev/api',
+  baseURL: process.env.REACT_APP_API_URL
 });
 
 // Chỗ này cũng tự gắn Token nhưng là Token của khách hàng
