@@ -12,7 +12,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   // XỬ LÝ ĐĂNG NHẬP
-  // XỬ LÝ ĐĂNG NHẬP 
   const btnLoginClick = async (e) => {
     e.preventDefault();
 
@@ -45,9 +44,14 @@ const Login = () => {
       const resAdmin = await api.post('/admin/login', account);
       
       if (resAdmin.data.success) {
-        // Nếu đúng là Admin -> Chuyển thẳng sang nhà Admin kèm thẻ bài (token)
         const token = resAdmin.data.token;
-        window.location.href = `https://admin.nhatvm.id.vn?token=${token}`;
+        const admin = resAdmin.data.admin; // Lấy thông tin user (nếu backend trả về tên khác thì bạn sửa lại nhé)
+        
+        // Đóng gói thông tin admin thành chuỗi để đưa lên URL
+        const adminData = encodeURIComponent(JSON.stringify(admin)); 
+
+        // Phóng sang trang Admin mang theo cả token và thông tin
+        window.location.href = `https://admin.nhatvm.id.vn?token=${token}&admin=${adminData}`;
         return;
       }
 

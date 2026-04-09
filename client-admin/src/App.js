@@ -10,17 +10,19 @@ function App() {
   // ===== THÊM ĐOẠN NÀY ĐỂ BẮT TOKEN TỪ KHÁCH HÀNG CHUYỂN SANG =====
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const tokenFromCustomer = urlParams.get('token');
+    const token = urlParams.get('token');
+    const adminData = urlParams.get('admin');
 
-    if (tokenFromCustomer) {
-      // 1. Lưu token vào máy của Admin 
-      localStorage.setItem('token', tokenFromCustomer); 
-      
-      // 2. Xóa cái đuôi ?token=... trên URL đi cho bảo mật và đẹp link
-      window.history.replaceState({}, document.title, "/");
+    if (token && adminData) {
+      // 1. Giải mã thông tin admin
+      const admin = JSON.parse(decodeURIComponent(adminData));
 
-      // 3. Tải lại trang 1 lần để hệ thống (MyProvider/Router) nhận diện token mới và cho vào thẳng
-      window.location.reload(); 
+      // 2. Lưu vào máy 
+      localStorage.setItem('admin_token', token); 
+      localStorage.setItem('admin', JSON.stringify(admin));
+
+      // 3. Phá cửa đi thẳng vào trong! 
+      window.location.href = "/admin/home"; 
     }
   }, []);
   // ===============================================================
