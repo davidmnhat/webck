@@ -1,31 +1,33 @@
 import './App.css';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MyProvider from './contexts/MyProvider';
 import Login from './components/Login';
 import Main from './components/Main';
 
-function App() {
+// ==============================================================
+// 1. CHẶN ĐỌC THẺ VIP NGAY TỪ NGOÀI CỬA (TRƯỚC KHI RENDER WEB)
+// ==============================================================
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get('token');
+const adminData = urlParams.get('admin');
 
-  // ===== THÊM ĐOẠN NÀY ĐỂ BẮT TOKEN TỪ KHÁCH HÀNG CHUYỂN SANG =====
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const adminData = urlParams.get('admin');
+if (token) {
+      localStorage.setItem('token', token);
 
-    if (token && adminData) {
-      // 1. Giải mã thông tin admin
-      const admin = JSON.parse(decodeURIComponent(adminData));
+      if (adminData) {
+        const adminObj = JSON.parse(decodeURIComponent(adminData));
+        localStorage.setItem('username', adminObj.username || 'admin');
+      }
 
-      // 2. Lưu vào máy 
-      localStorage.setItem('admin_token', token); 
-      localStorage.setItem('admin', JSON.stringify(admin));
-
-      // 3. Phá cửa đi thẳng vào trong! 
-      window.location.href = "/admin/home"; 
+      window.location.replace("/admin"); 
     }
-  }, []);
-  // ===============================================================
+// ==============================================================
+
+function App() {
+  // 2. Nếu đang bận chuyển hướng, tạm thời nhắm mắt không render cái gì cả
+  // Để tránh bị thằng Router nó "nhanh tay" sút ra trang Login
+  if (token) return null; 
 
   return (
     <MyProvider>

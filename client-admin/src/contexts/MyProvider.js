@@ -5,8 +5,9 @@ class MyProvider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      token: '',
-      username: ''
+      // Tự động tìm token và username trong máy, nếu không có mới để rỗng ''
+      token: localStorage.getItem('token') || '',
+      username: localStorage.getItem('username') || ''
     };
   }
   setToken = (value) => {

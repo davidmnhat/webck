@@ -18,49 +18,51 @@ const Login = () => {
     if (!username || !password) {
       return alert('Vui lòng nhập đầy đủ thông tin');
     }
-
-    const account = { username: username, password: password };
+    const account = { username, password };
 
     try {
-      // BƯỚC 1: Thử tìm trong kho KHÁCH HÀNG trước
-      const resCustomer = await api.post('/customer/login', account);
-      
-      if (resCustomer.data.success) {
-        const token = resCustomer.data.token;
-        const customer = resCustomer.data.customer;
+      // BƯỚC 1: Gõ cửa kho Khách hàng trước
+      try {
+        const resCus = await api.post('/customer/login', account);
+        if (resCus.data && resCus.data.success) {
+          const token = resCus.data.token;
+          const customer = resCus.data.customer;
 
-        // Lưu vào Context & LocalStorage
-        setToken(token);
-        setCustomer(customer);
-        localStorage.setItem('customer_token', token);
-        localStorage.setItem('customer', JSON.stringify(customer));
+          setToken(token);
+          setCustomer(customer);
+          localStorage.setItem('customer_token', token);
+          localStorage.setItem('customer', JSON.stringify(customer));
 
-        alert('Đăng nhập Khách hàng thành công!');
-        navigate('/');
-        return; // Dừng lại ở đây
+          alert('Đăng nhập Khách hàng thành công!');
+          navigate('/');
+          return; // Thành công thì dừng luôn
+        }
+      } catch (err) {
+        // Lỗi 401 hoặc sai pass khách hàng thì im lặng để code trôi xuống Bước 2
       }
 
-      // BƯỚC 2: Nếu kho Khách hàng không có, thử tìm trong kho ADMIN
-      const resAdmin = await api.post('/admin/login', account);
-      
-      if (resAdmin.data.success) {
-        const token = resAdmin.data.token;
-        const admin = resAdmin.data.admin; // Lấy thông tin user (nếu backend trả về tên khác thì bạn sửa lại nhé)
-        
-        // Đóng gói thông tin admin thành chuỗi để đưa lên URL
-        const adminData = encodeURIComponent(JSON.stringify(admin)); 
-
-        // Phóng sang trang Admin mang theo cả token và thông tin
-        window.location.href = `https://admin.nhatvm.id.vn?token=${token}&admin=${adminData}`;
-        return;
+      // BƯỚC 2: Gõ cửa kho Admin
+      try {
+        const resAdm = await api.post('/admin/login', account);
+        if (resAdm.data && resAdm.data.success) {
+          const token = resAdm.data.token;
+          // Lấy thông tin user, phòng hờ backend trả về tên biến khác
+          const adminObj = resAdm.data.admin || resAdm.data.user || resAdm.data.account || { username };
+          const adminStr = encodeURIComponent(JSON.stringify(adminObj));
+          
+          // Phóng thẳng sang trang Admin
+          window.location.href = `https://admin.nhatvm.id.vn?token=${token}&admin=${adminStr}`;
+          return;
+        }
+      } catch (err) {
+        // Lỗi gọi API Admin
       }
 
-      // BƯỚC 3: Nếu tìm cả 2 kho đều không có -> Sai pass thật
+      // BƯỚC 3: Nếu đi qua cả 2 cửa mà vẫn không return được -> Sai thật!
       alert('Sai tài khoản hoặc mật khẩu!');
 
-    } catch (err) {
-      console.error(err);
-      alert('Sai tài khoản hoặc mật khẩu!');
+    } catch (error) {
+      alert('Lỗi hệ thống!');
     }
   };
 
