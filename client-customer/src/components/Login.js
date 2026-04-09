@@ -23,16 +23,26 @@ const Login = () => {
           const token = res.data.token;
           const customer = res.data.customer;
 
-          // Lưu vào Context
-          setToken(token);
-          setCustomer(customer);
-          
-          // Lưu vào LocalStorage
-          localStorage.setItem('customer_token', token);
-          localStorage.setItem('customer', JSON.stringify(customer));
+          // ====== PHẦN MỚI THÊM: KIỂM TRA QUYỀN ĐỂ CHUYỂN HƯỚNG ======
+          if (customer && (customer.role === 'admin' || customer.role === 1)) {
+            // Nếu tài khoản có quyền admin -> Chuyển thẳng sang tên miền Admin kèm token
+            window.location.href = `https://admin.nhatvm.id.vn?token=${token}`;
+          } else {
+            // Nếu là tài khoản khách hàng bình thường -> Thực hiện logic đăng nhập cũ
+            
+            // Lưu vào Context
+            setToken(token);
+            setCustomer(customer);
+            
+            // Lưu vào LocalStorage
+            localStorage.setItem('customer_token', token);
+            localStorage.setItem('customer', JSON.stringify(customer));
 
-          alert('Đăng nhập thành công!');
-          navigate('/');
+            alert('Đăng nhập thành công!');
+            navigate('/');
+          }
+          // ==============================================================
+
         } else {
           alert(res.data.message);
         }
