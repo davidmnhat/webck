@@ -12,43 +12,51 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   // XỬ LÝ ĐĂNG NHẬP
-  const btnLoginClick = (e) => {
+  // XỬ LÝ ĐĂNG NHẬP 
+  const btnLoginClick = async (e) => {
     e.preventDefault();
 
-    if (username && password) {
-      const account = { username: username, password: password };
+    if (!username || !password) {
+      return alert('Vui lòng nhập đầy đủ thông tin');
+    }
+
+    const account = { username: username, password: password };
+
+    try {
+      // BƯỚC 1: Thử tìm trong kho KHÁCH HÀNG trước
+      const resCustomer = await api.post('/customer/login', account);
       
-      api.post('/customer/login', account).then((res) => {
-        if (res.data.success) {
-          const token = res.data.token;
-          const customer = res.data.customer;
+      if (resCustomer.data.success) {
+        const token = resCustomer.data.token;
+        const customer = resCustomer.data.customer;
 
-          // ====== PHẦN MỚI THÊM: KIỂM TRA QUYỀN ĐỂ CHUYỂN HƯỚNG ======
-          if (customer && (customer.role === 'admin' || customer.role === 1)) {
-            // Nếu tài khoản có quyền admin -> Chuyển thẳng sang tên miền Admin kèm token
-            window.location.href = `https://admin.nhatvm.id.vn?token=${token}`;
-          } else {
-            // Nếu là tài khoản khách hàng bình thường -> Thực hiện logic đăng nhập cũ
-            
-            // Lưu vào Context
-            setToken(token);
-            setCustomer(customer);
-            
-            // Lưu vào LocalStorage
-            localStorage.setItem('customer_token', token);
-            localStorage.setItem('customer', JSON.stringify(customer));
+        // Lưu vào Context & LocalStorage
+        setToken(token);
+        setCustomer(customer);
+        localStorage.setItem('customer_token', token);
+        localStorage.setItem('customer', JSON.stringify(customer));
 
-            alert('Đăng nhập thành công!');
-            navigate('/');
-          }
-          // ==============================================================
+        alert('Đăng nhập Khách hàng thành công!');
+        navigate('/');
+        return; // Dừng lại ở đây
+      }
 
-        } else {
-          alert(res.data.message);
-        }
-      });
-    } else {
-      alert('Vui lòng nhập đầy đủ thông tin');
+      // BƯỚC 2: Nếu kho Khách hàng không có, thử tìm trong kho ADMIN
+      const resAdmin = await api.post('/admin/login', account);
+      
+      if (resAdmin.data.success) {
+        // Nếu đúng là Admin -> Chuyển thẳng sang nhà Admin kèm thẻ bài (token)
+        const token = resAdmin.data.token;
+        window.location.href = `https://admin.nhatvm.id.vn?token=${token}`;
+        return;
+      }
+
+      // BƯỚC 3: Nếu tìm cả 2 kho đều không có -> Sai pass thật
+      alert('Sai tài khoản hoặc mật khẩu!');
+
+    } catch (err) {
+      console.error(err);
+      alert('Sai tài khoản hoặc mật khẩu!');
     }
   };
 
