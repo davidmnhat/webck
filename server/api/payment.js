@@ -4,7 +4,7 @@ const Order = require('../models/OrderModel'); // ✅ FIX: trỏ đúng vào mod
 
 const receivedTransactions = new Map();
 
-// Đổi tên route cho đúng chuẩn SePay
+// Đổi tên route cho SePay
 router.post('/sepay-webhook', async (req, res) => {
   
   try {
@@ -16,7 +16,7 @@ router.post('/sepay-webhook', async (req, res) => {
 
     // SePay bắn thẳng 1 object về, đổi tên biến cho khớp tài liệu SePay
     const { content, transferAmount, transactionDate } = req.body;
-
+    console.log(">>> TIỀN VỀ TIỀN VỀ NHẬT ƠI!!! NỘI DUNG:", content);
     // Nếu không có nội dung chuyển khoản thì bỏ qua luôn
     if (!content) return res.json({ success: true });
 
