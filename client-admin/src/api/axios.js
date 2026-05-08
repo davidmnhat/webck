@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL // Dòng này là quan trọng nhất!
+  baseURL: '/api'
 });
 
 // Tự động thêm Token vào mỗi request
