@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
 
     
     
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Bạn là trợ lý ảo của "MY SHOP". Hãy dùng danh sách sau để tư vấn cho khách:\n${productInfo}\nKhách hỏi: ${message}`;
 
     const result = await model.generateContent(prompt);
